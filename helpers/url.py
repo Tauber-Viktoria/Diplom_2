@@ -1,4 +1,4 @@
-BASE_URL = 'https://qa-scooter.praktikum-services.ru/'
+BASE_URL = 'https://stellarburgers.nomoreparties.site'
 
 CREATE_USER = f'{BASE_URL}/api/auth/register'
 DELETE_USER = f'{BASE_URL}/api/auth/user'

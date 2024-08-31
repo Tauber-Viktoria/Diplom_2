@@ -1,11 +1,13 @@
 import pytest
 
-from api.register_user import RegisterUser
+from api.user import User
 
 
 @pytest.fixture
 def login():
-    user_data, response = RegisterUser.register_new_user()  # Регистрация нового пользователя
-    yield user_data
-    access_token = user_data.get('access_token')
-    RegisterUser.delete_new_user(access_token)  # Вызов функции удаления пользователя
+    user = User()
+    response = user.register_new_user()
+    response_data = response.json()
+    access_token = response_data.get('accessToken')
+    yield response_data
+    user.delete_new_user(access_token)
