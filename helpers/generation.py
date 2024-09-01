@@ -18,10 +18,13 @@ def generate_password():
     return password
 
 
-def generate_data_user():
-    data_user = {
-        'first_name': generate_first_name(),
-        'email': generate_email(),
-        'password': generate_password()
-    }
+def generate_data_user(include_first_name=True, include_email=True, include_password=True):
+    data_user = {}
+    if include_first_name:
+        data_user['name'] = generate_first_name()
+    if include_email:
+        data_user['email'] = generate_email()
+    if include_password:
+        data_user['password'] = generate_password()
+
     return data_user
