@@ -24,15 +24,3 @@ class User:
         if delete_response.status_code != 202:
             pytest.fail(f"Ошибка при удалении пользователя: {delete_response.status_code} - {delete_response.text}")
 
-    @staticmethod
-    @allure.step("Создание пользователя с заданным email")
-    def register_user_with_email(email):
-        payload = {
-            "email": email,
-            "password": generation.generate_password(),
-            "name": generation.generate_first_name()
-        }
-
-        response = requests.post(url.CREATE_USER, json=payload)
-        return response
-
