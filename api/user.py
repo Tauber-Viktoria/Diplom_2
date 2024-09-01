@@ -24,3 +24,10 @@ class User:
         if delete_response.status_code != 202:
             pytest.fail(f"Ошибка при удалении пользователя: {delete_response.status_code} - {delete_response.text}")
 
+    @staticmethod
+    @allure.step("Логин пользователя")
+    def login_user(login, password):
+        login_response = requests.post(url.LOGIN_USER,
+                                       json={'email': login, 'password': password}
+                                       )
+        return login_response

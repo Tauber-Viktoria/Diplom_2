@@ -1,12 +1,11 @@
 import pytest
 import requests
 
-from api.user import User
 from helpers import generation, url
 
 
 @pytest.fixture
-def login():
+def create_and_delete_user():
     data_user = generation.generate_data_user()
     create_response = requests.post(url.CREATE_USER, json=data_user)
     user_access_token = create_response.json().get('accessToken')
