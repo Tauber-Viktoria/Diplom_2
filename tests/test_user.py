@@ -3,7 +3,7 @@ import pytest
 
 from api.user import User
 from helpers import generation
-from helpers.message import MassageUser
+from helpers.message import Massage
 
 
 @allure.feature("Создание пользователя")
@@ -31,7 +31,7 @@ class TestCreateCourier:
 
         assert (response.status_code == 403 and
                 response.json()['success'] is False and
-                response.json().get('message') == MassageUser.USER_ALREADY_EXISTS), \
+                response.json().get('message') == Massage.USER_ALREADY_EXISTS), \
             f'Статус код {response.status_code},В ответе {response.json()}'
 
     @allure.story("Ошибка при создании учетной записи курьера без обязательных полей")
@@ -46,7 +46,7 @@ class TestCreateCourier:
 
         assert (response.status_code == 403 and
                 response.json()['success'] is False and
-                response.json().get('message') == MassageUser.EMAIL_PASSWORD_NAME_REQUIRED), \
+                response.json().get('message') == Massage.EMAIL_PASSWORD_NAME_REQUIRED), \
             f'Статус код {response.status_code},В ответе {response.json()}'
 
 
@@ -81,7 +81,7 @@ class TestLoginUser:
 
         assert (login_response.status_code == 401 and
                 login_response.json()['success'] is False and
-                login_response.json().get('message') == MassageUser.EMAIL_PASSWORD_INCORRECT), \
+                login_response.json().get('message') == Massage.EMAIL_PASSWORD_INCORRECT), \
             f'Статус код {login_response.status_code},В ответе {login_response.json()}'
 
 
@@ -128,5 +128,5 @@ class TestChangeUserData:
         change_response = User.change_user_data(access_token, updated_data)
         assert (change_response.status_code == 401 and
                 change_response.json()['success'] is False and
-                change_response.json().get('message') == MassageUser.WITHOUT_AUTHORIZATION), \
+                change_response.json().get('message') == Massage.WITHOUT_AUTHORIZATION), \
             f'Статус код {change_response.status_code}, В ответе {change_response.json()}'

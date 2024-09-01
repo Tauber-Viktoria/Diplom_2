@@ -3,7 +3,7 @@ import allure
 from api.orders import Order
 from api.user import User
 from helpers.generation import generate_body_order
-from helpers.message import MassageOrder
+from helpers.message import Massage
 
 
 @allure.feature("Создание заказа")
@@ -44,7 +44,7 @@ class TestCreateOrder:
 
         order_response = Order.create_order(access_token, body_order)
         assert (order_response.status_code == 400 and
-                order_response.json().get('message') == MassageOrder.WITHOUT_INGREDIENT and
+                order_response.json().get('message') == Massage.WITHOUT_INGREDIENT and
                 order_response.json()['success'] is False), \
             f'Статус код {order_response.status_code}, В ответе {order_response.json()}'
 
@@ -57,3 +57,33 @@ class TestCreateOrder:
         order_response = Order.create_order(access_token, body_order)
         assert order_response.status_code == 500, \
             f'Статус код {order_response.status_code}'
+
+
+@allure.feature("Получение заказов конкретного пользователя")
+class TestGetOrder:
+    @allure.story("Успешное получение заказов конкретного пользователя с авторизацией")
+    @allure.title("Тест на получение заказов конкретного пользователя с авторизацией")
+    def test_get_order_successful(self, login_in):
+        access_token = login_in.json().get('accessToken')
+        body_order = generate_body_order()
+        Order.create_order(access_token, body_order)
+
+        get_order_response = Order.get_order(access_token)
+        assert (get_order_response.status_code == 200 and
+                get_order_response.json()['success'] is True and
+                'orders' in get_order_response.json()), \
+            f'Статус код {get_order_response.status_code}, В ответе {get_order_response.json()}'
+
+    @allure.story("Ошибка при попытке получения заказов без авторизации")
+    @allure.title("Тест на получение заказов без авторизации")
+    def test_get_order_without_authorization_error(self, login_in):
+        access_token = login_in.json().get('accessToken')
+        body_order = generate_body_order()
+        Order.create_order(access_token, body_order)
+        access_token = None
+
+        get_order_response = Order.get_order(access_token)
+        assert (get_order_response.status_code == 401 and
+                get_order_response.json()['success'] is False and
+                get_order_response.json().get('message') == Massage.WITHOUT_AUTHORIZATION), \
+            f'Статус код {get_order_response.status_code}, В ответе {get_order_response.json()}'

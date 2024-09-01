@@ -24,5 +24,5 @@ def login_in(create_and_delete_user):
     data_user = create_and_delete_user
     email = data_user.get('email', '')
     password = data_user.get('password', '')
-    login_response = User.login_user(data_user.get(email), data_user.get(password))
+    login_response = User.login_user(email, password)
     return login_response
