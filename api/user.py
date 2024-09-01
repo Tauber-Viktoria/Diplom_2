@@ -27,7 +27,15 @@ class User:
     @staticmethod
     @allure.step("Логин пользователя")
     def login_user(login, password):
-        login_response = requests.post(url.LOGIN_USER,
-                                       json={'email': login, 'password': password}
-                                       )
+        login_response = requests.post(url.LOGIN_USER, json={'email': login, 'password': password})
         return login_response
+
+    @staticmethod
+    @allure.step("Изменить данные пользователя")
+    def change_user_data(access_token, updated_data):
+        change_headers = {
+            'Accept': 'application/json',
+            'Authorization': f'{access_token}'
+        }
+        change_response = requests.patch(url.CHANGE_USER_DATA, headers=change_headers, json=updated_data)
+        return change_response

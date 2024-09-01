@@ -24,7 +24,7 @@ class TestCreateCourier:
         User.delete_new_user(access_token)
 
     @allure.story("Ошибка при повторном создании пользователя")
-    @allure.title("Попытка создания пользователя с уже существующим логином")
+    @allure.title("Тест на создание пользователя с уже существующим логином")
     def test_create_user_repeat_login_error(self, create_and_delete_user):
         data_user = create_and_delete_user
         response = User.register_new_user(data_user)
@@ -35,7 +35,7 @@ class TestCreateCourier:
             f'Статус код {response.status_code},В ответе {response.json()}'
 
     @allure.story("Ошибка при создании учетной записи курьера без обязательных полей")
-    @allure.title("Создание учетной записи курьера без обязательного поля")
+    @allure.title("Тест на создание учетной записи курьера без обязательного поля")
     @pytest.mark.parametrize("data_user", [
         (generation.generate_data_user(include_first_name=False)),
         (generation.generate_data_user(include_email=False)),
@@ -53,7 +53,7 @@ class TestCreateCourier:
 @allure.feature("Авторизация пользователя")
 class TestLoginUser:
     @allure.story("Успешная авторизация пользователя")
-    @allure.title("Авторизация пользователя при передаче всех обязательных полей")
+    @allure.title("Тест на авторизацию пользователя при передаче всех обязательных полей")
     def test_login_user_successful(self, create_and_delete_user):
         data_user = create_and_delete_user
         login_response = User.login_user(data_user.get('email', ''), data_user.get('password', ''))
@@ -65,17 +65,68 @@ class TestLoginUser:
             f"Статус код {login_response.status_code}, В ответе {login_response.json()}"
 
     @allure.story("Ошибка если неправильно указать логин или пароль")
-    @allure.title("Авторизация с заменой значения у обязательного поля")
+    @allure.title("Тест на авторизацию с заменой значения у обязательного поля")
     @pytest.mark.parametrize("error_value", ["email", "password"])
     def test_login_user_invalid_value_error(self, create_and_delete_user, error_value):
         data_user = create_and_delete_user.copy()
+        email = data_user.get('email', '')
+        password = data_user.get('password', '')
 
-        if error_value in data_user:
-            data_user[error_value] = 'errorERRORerror666'
+        if error_value == "email":
+            data_user['email'] = 'errorERRORerror666@mail.com'
+        elif error_value == "password":
+            data_user['password'] = 'errorERRORerror666'
 
-        login_response = User.login_user(data_user.get('email', ''), data_user.get('password', ''))
+        login_response = User.login_user(data_user.get('email', email), data_user.get('password', password))
 
         assert (login_response.status_code == 401 and
                 login_response.json()['success'] is False and
                 login_response.json().get('message') == MassageUser.EMAIL_PASSWORD_INCORRECT), \
             f'Статус код {login_response.status_code},В ответе {login_response.json()}'
+
+
+@allure.feature("Изменения данных пользователя")
+class TestChangeUserData:
+    @allure.story("Успешное изменение данных пользователя")
+    @allure.title("Тест на изменение данных пользователя с авторизацией")
+    @pytest.mark.parametrize("value", ["email", "name"])
+    def test_change_user_data_successful(self, create_and_delete_user, value):
+        data_user = create_and_delete_user
+        email = data_user.get('email', '')
+        password = data_user.get('password', '')
+        login_response = User.login_user(data_user.get('email', email), data_user.get('password', password))
+        access_token = login_response.json().get('accessToken')
+
+        updated_data = data_user.copy()
+        if value == "email":
+            updated_data['email'] = "newemail123@mail.com"
+        elif value == "name":
+            updated_data['name'] = "NewUsername123"
+
+        change_response = User.change_user_data(access_token, updated_data)
+        assert (change_response.status_code == 200 and
+                change_response.json()['success'] is True and
+                'user' in change_response.json()), \
+            f'Статус код {change_response.status_code}, В ответе {change_response.json()}'
+
+    @allure.story("Ошибка при изменении данных пользователя")
+    @allure.title("Тест на изменение данных пользователя без авторизации")
+    @pytest.mark.parametrize("value", ["email", "name"])
+    def test_change_user_data_without_authorization_error(self, create_and_delete_user, value):
+        data_user = create_and_delete_user
+        email = data_user.get('email', '')
+        password = data_user.get('password', '')
+        User.login_user(data_user.get('email', email), data_user.get('password', password))
+        access_token = None
+
+        updated_data = data_user.copy()
+        if value == "email":
+            updated_data['email'] = "newemail123@mail.com"
+        elif value == "name":
+            updated_data['name'] = "NewUsername123"
+
+        change_response = User.change_user_data(access_token, updated_data)
+        assert (change_response.status_code == 401 and
+                change_response.json()['success'] is False and
+                change_response.json().get('message') == MassageUser.WITHOUT_AUTHORIZATION), \
+            f'Статус код {change_response.status_code}, В ответе {change_response.json()}'
