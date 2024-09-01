@@ -2,7 +2,7 @@ import allure
 import pytest
 import requests
 
-from helpers import url, generation
+from helpers import url
 
 
 class User:
