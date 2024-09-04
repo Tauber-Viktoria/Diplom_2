@@ -20,9 +20,9 @@ class TestCreateOrder:
                 'order' in order_response.json()), \
             f'Статус код {order_response.status_code}, В ответе {order_response.json()}'
 
-    @allure.story("Ошибка при создании заказа без авторизации")
+    @allure.story("Успешное создание заказа без авторизации")
     @allure.title("Тест на создание заказа без авторизации")
-    def test_create_order_without_authorization_error(self, create_and_delete_user):
+    def test_create_order_without_authorization_successful(self, create_and_delete_user):
         data_user = create_and_delete_user
         email = data_user.get('email', '')
         password = data_user.get('password', '')
